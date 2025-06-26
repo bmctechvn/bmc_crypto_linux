@@ -20,13 +20,13 @@ Một thư viện C hiệu năng cao, cung cấp các chức năng mã hóa và 
 
 ## **Sử dụng**
 
-Đặt file `libbmc_crypto.so` vừa được tạo vào cùng thư mục với script Python của bạn.
+Đặt file `libbmc_cryptographic.so` vừa được tạo vào cùng thư mục với script Python của bạn.
 
 ## **Hướng dẫn sử dụng (API Python)**
 
-[cite\_start]Cách tốt nhất để sử dụng thư viện là thông qua lớp `BCrypto` được cung cấp. [cite: 7]
+[cite\_start] Cách tốt nhất để sử dụng thư viện là thông qua lớp `BCrypto` được cung cấp. [cite: 7]
 
-### **1. [cite\_start]Khởi tạo** [cite: 8]
+### **1. [cite\_start] Khởi tạo** [cite: 8]
 
 ```python
 import ctypes
@@ -34,7 +34,7 @@ import os
 from typing import Optional
 
 # Đường dẫn đến thư viện đã biên dịch
-LIB_PATH = './libbmc_crypto.so'
+LIB_PATH = './libbmc_cryptographic.so'
 
 # Khởi tạo đối tượng
 crypto = BCrypto(LIB_PATH)
@@ -82,7 +82,7 @@ import os
 from typing import Optional
 
 # Tên file thư viện .so
-LIB_PATH = './libbmc_crypto.so'
+LIB_PATH = './libbmc_cryptographic.so'
 
 class BCrypto:
     """
