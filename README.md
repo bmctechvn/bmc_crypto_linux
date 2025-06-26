@@ -9,13 +9,13 @@ Một thư viện C hiệu năng cao, cung cấp các chức năng mã hóa và 
 
   * **Mã hóa AES:**
       * **Kích thước khóa:** 128, 192, và 256-bit.
-      * [cite\_start]**Chế độ hoạt động:** CBC, ECB, và CTR[cite: 1, 2, 3, 4, 5].
+      * **Chế độ hoạt động:** CBC, ECB, và CTR.
       * Tự động xử lý đệm (padding) PKCS\#7 cho các chế độ CBC và ECB.
   * **Hàm băm (Hashing):**
-      * [cite\_start]**SHA-2:** Triển khai SHA-256[cite: 6].
-      * [cite\_start]**SHA-3:** Hỗ trợ SHA3-256, SHA3-384, và SHA3-512[cite: 6].
+      * **SHA-2:** Triển khai SHA-256.
+      * **SHA-3:** Hỗ trợ SHA3-256, SHA3-384, và SHA3-512.
   * **Hiệu năng cao:** Toàn bộ logic mật mã được xử lý bằng mã C gốc đã được tối ưu.
-  * [cite\_start]**Dễ sử dụng:** Cung cấp một lớp Python (`BCrypto`) đơn giản để che giấu sự phức tạp của việc gọi hàm C. [cite: 7]
+  * **Dễ sử dụng:** Cung cấp một lớp Python (`BCrypto`) đơn giản để che giấu sự phức tạp của việc gọi hàm C. 
 
 
 ## **Sử dụng**
@@ -24,9 +24,9 @@ Một thư viện C hiệu năng cao, cung cấp các chức năng mã hóa và 
 
 ## **Hướng dẫn sử dụng (API Python)**
 
-[cite\_start] Cách tốt nhất để sử dụng thư viện là thông qua lớp `BCrypto` được cung cấp. [cite: 7]
+Cách tốt nhất để sử dụng thư viện là thông qua lớp `BCrypto` được cung cấp. 
 
-### **1. [cite\_start] Khởi tạo** [cite: 8]
+### **1. Khởi tạo** 
 
 ```python
 import ctypes
@@ -42,31 +42,31 @@ crypto = BCrypto(LIB_PATH)
 
 ### **2. Các phương thức chính**
 
-#### `aes_encrypt(plaintext: bytes, key: bytes, iv: bytes) -> bytes | [cite_start]None` [cite: 8, 9]
+#### `aes_encrypt(plaintext: bytes, key: bytes, iv: bytes) -> bytes | None`
 
 Mã hóa dữ liệu bằng AES-128-CBC.
 
   * **Tham số:**
-      * [cite\_start]`plaintext` (`bytes`): Dữ liệu gốc cần mã hóa. [cite: 9]
-      * [cite\_start]`key` (`bytes`): Khóa mã hóa, bắt buộc phải dài 16 bytes cho AES-128[cite: 10].
-      * [cite\_start]`iv` (`bytes`): Initialization Vector, bắt buộc phải dài 16 bytes[cite: 10].
+      * `plaintext` (`bytes`): Dữ liệu gốc cần mã hóa. 
+      * `key` (`bytes`): Khóa mã hóa, bắt buộc phải dài 16 bytes cho AES-128.
+      * `iv` (`bytes`): Initialization Vector, bắt buộc phải dài 16 bytes.
   * **Trả về:**
-      * [cite\_start]Một đối tượng `bytes` chứa dữ liệu đã mã hóa[cite: 11].
-      * [cite\_start]`None` nếu có lỗi xảy ra[cite: 11].
+      * Một đối tượng `bytes` chứa dữ liệu đã mã hóa.
+      * `None` nếu có lỗi xảy ra.
 
-#### `aes_decrypt(ciphertext: bytes, key: bytes, iv: bytes) -> bytes | [cite_start]None` [cite: 12]
+#### `aes_decrypt(ciphertext: bytes, key: bytes, iv: bytes) -> bytes | None` 
 
 Giải mã dữ liệu bằng AES-128-CBC.
 
   * **Tham số:**
-      * [cite\_start]`ciphertext` (`bytes`): Dữ liệu đã mã hóa[cite: 12].
-      * [cite\_start]`key` (`bytes`): Khóa giải mã, phải giống hệt khóa mã hóa và dài 16 bytes[cite: 13].
-      * [cite\_start]`iv` (`bytes`): Initialization Vector, phải giống hệt IV đã dùng để mã hóa và dài 16 bytes[cite: 14].
+      * `ciphertext` (`bytes`): Dữ liệu đã mã hóa.
+      * `key` (`bytes`): Khóa giải mã, phải giống hệt khóa mã hóa và dài 16 bytes.
+      * `iv` (`bytes`): Initialization Vector, phải giống hệt IV đã dùng để mã hóa và dài 16 bytes.
   * **Trả về:**
-      * [cite\_start]Một đối tượng `bytes` chứa dữ liệu gốc đã được giải mã[cite: 15].
-      * [cite\_start]`None` nếu có lỗi (ví dụ: sai khóa, dữ liệu hỏng, hoặc lỗi padding)[cite: 16].
+      * Một đối tượng `bytes` chứa dữ liệu gốc đã được giải mã.
+      * `None` nếu có lỗi (ví dụ: sai khóa, dữ liệu hỏng, hoặc lỗi padding).
 
-#### [cite\_start]`sha256(data: bytes) -> bytes` [cite: 17]
+#### `sha256(data: bytes) -> bytes` 
 
 Băm dữ liệu bằng thuật toán SHA-256.
 
@@ -93,11 +93,11 @@ class BCrypto:
             raise FileNotFoundError(f"Thư viện không được tìm thấy tại: {library_path}")
         
         self.lib = ctypes.CDLL(library_path)
-        [cite_start]self._configure_functions() [cite: 18]
-        [cite_start]print("Thư viện bmc_crypto đã được nạp thành công.") [cite: 18]
+        self._configure_functions() 
+        print("Thư viện bmc_crypto đã được nạp thành công.") 
 
     def _configure_functions(self):
-        [cite_start]"""Cấu hình chữ ký các hàm C dựa trên bmc_crypto.h""" [cite: 18]
+        """Cấu hình chữ ký các hàm C dựa trên bmc_crypto.h""" 
         
         # --- AES Functions ---
         self.lib.bmc_aes_get_padded_size.argtypes = [ctypes.c_size_t]
@@ -106,25 +106,25 @@ class BCrypto:
         self.lib.bmc_aes128_cbc_encrypt.argtypes = [
             ctypes.c_void_p, ctypes.c_size_t, ctypes.c_void_p, 
             ctypes.c_void_p, ctypes.c_void_p
-        [cite_start]] [cite: 19]
-        [cite_start]self.lib.bmc_aes128_cbc_encrypt.restype = ctypes.c_int [cite: 19]
+        
+            self.lib.bmc_aes128_cbc_encrypt.restype = ctypes.c_int 
 
         self.lib.bmc_aes128_cbc_decrypt.argtypes = [
             ctypes.c_void_p, ctypes.c_size_t, ctypes.c_void_p,
             ctypes.c_void_p, ctypes.c_void_p,
             ctypes.POINTER(ctypes.c_size_t)
-        [cite_start]] [cite: 19, 20]
-        [cite_start]self.lib.bmc_aes128_cbc_decrypt.restype = ctypes.c_int [cite: 20]
+        
+        self.lib.bmc_aes128_cbc_decrypt.restype = ctypes.c_int 
 
         # --- SHA-256 Function ---
-        [cite_start]self.lib.bmc_sha256.argtypes = [ctypes.c_void_p, ctypes.c_size_t, ctypes.c_void_p] [cite: 20]
-        [cite_start]self.lib.bmc_sha256.restype = None [cite: 20]
+        self.lib.bmc_sha256.argtypes = [ctypes.c_void_p, ctypes.c_size_t, ctypes.c_void_p] 
+        self.lib.bmc_sha256.restype = None 
 
 
     def aes_encrypt(self, plaintext: bytes, key: bytes, iv: bytes) -> Optional[bytes]:
         """Hàm mã hóa AES-128-CBC tiện lợi."""
         if len(key) != 16 or len(iv) != 16:
-            [cite_start]print("Lỗi: Key và IV phải dài đúng 16 bytes.") [cite: 21]
+            print("Lỗi: Key và IV phải dài đúng 16 bytes.") 
             return None
 
         encrypted_size = self.lib.bmc_aes_get_padded_size(len(plaintext))
@@ -134,7 +134,7 @@ class BCrypto:
             plaintext, len(plaintext), key, iv, encrypted_buf
         )
         if result != 0: return None
-        [cite_start]return encrypted_buf.raw [cite: 22]
+        return encrypted_buf.raw 
 
     def aes_decrypt(self, ciphertext: bytes, key: bytes, iv: bytes) -> Optional[bytes]:
         """Hàm giải mã AES-128-CBC tiện lợi."""
@@ -143,7 +143,7 @@ class BCrypto:
             return None
 
         decrypted_buf = ctypes.create_string_buffer(len(ciphertext))
-        [cite_start]actual_len = ctypes.c_size_t(0) [cite: 23]
+        actual_len = ctypes.c_size_t(0)
         
         result = self.lib.bmc_aes128_cbc_decrypt(
             ciphertext, len(ciphertext), key, iv,
@@ -154,9 +154,9 @@ class BCrypto:
 
     def sha256(self, data: bytes) -> bytes:
         """Hàm băm SHA-256 tiện lợi."""
-        [cite_start]hash_buf = ctypes.create_string_buffer(32) [cite: 24]
+        hash_buf = ctypes.create_string_buffer(32) 
         self.lib.bmc_sha256(data, len(data), hash_buf)
-        [cite_start]return hash_buf.raw [cite: 24]
+        return hash_buf.raw
 
 # --- Kịch bản Test ---
 if __name__ == "__main__":
@@ -166,8 +166,8 @@ if __name__ == "__main__":
         # --- Test AES ---
         print("\n--- TESTING AES-128-CBC ---")
         plaintext_aes = b"Testing the final modular library in Python!"
-        [cite_start]key_aes = b'a-16-byte-secret' [cite: 25]
-        [cite_start]iv_aes  = b'a-16-byte-vector' [cite: 25]
+        key_aes = b'a-16-byte-secret' 
+        iv_aes  = b'a-16-byte-vector' 
 
         encrypted = crypto.aes_encrypt(plaintext_aes, key_aes, iv_aes)
         if encrypted:
@@ -175,15 +175,15 @@ if __name__ == "__main__":
             decrypted = crypto.aes_decrypt(encrypted, key_aes, iv_aes)
             if decrypted:
                 print(f"AES Decrypted: {decrypted.decode()}")
-                [cite_start]assert plaintext_aes == decrypted [cite: 26]
-                [cite_start]print("✅ AES Test PASSED") [cite: 26]
+                assert plaintext_aes == decrypted 
+                print("✅ AES Test PASSED") 
         
         # --- Test SHA-256 ---
         print("\n--- TESTING SHA-256 ---")
         input_sha = b"abc"
         expected_hash = "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
         
-        [cite_start]actual_hash = crypto.sha256(input_sha) [cite: 27]
+        actual_hash = crypto.sha256(input_sha)
         print(f"SHA-256 Input: '{input_sha.decode()}'")
         print(f"Actual Hash:   {actual_hash.hex()}")
         
