@@ -3,7 +3,7 @@ import os
 from typing import Optional
 
 # Tên file thư viện .so
-LIB_PATH = './libbmc_cryptographic.so'
+LIB_PATH = './libbmc_crypto.so'
 
 class BCrypto:
     """
@@ -18,98 +18,75 @@ class BCrypto:
         print("Thư viện bmc_crypto đã được nạp thành công.")
 
     def _configure_functions(self):
-        """Cấu hình chữ ký các hàm C dựa trên bmc_crypto.h"""
+        """Cấu hình chữ ký cho các hàm C dựa trên bmc_crypto.h"""
         
-        # --- AES Functions ---
-        self.lib.bmc_aes_get_padded_size.argtypes = [ctypes.c_size_t]
-        self.lib.bmc_aes_get_padded_size.restype = ctypes.c_size_t
+        # --- Cấu hình cho hàm AES-256-CTR ---
+        self.lib.bmc_aes256_ctr_xcrypt.argtypes = [
+            ctypes.c_void_p, ctypes.c_size_t, 
+            ctypes.c_void_p, ctypes.c_void_p, 
+            ctypes.c_void_p
+        ]
+        self.lib.bmc_aes256_ctr_xcrypt.restype = ctypes.c_int
         
-        self.lib.bmc_aes128_cbc_encrypt.argtypes = [
-            ctypes.c_void_p, ctypes.c_size_t, ctypes.c_void_p, 
-            ctypes.c_void_p, ctypes.c_void_p
-        ]
-        self.lib.bmc_aes128_cbc_encrypt.restype = ctypes.c_int
+        # ... bạn có thể thêm cấu hình cho các hàm khác ở đây ...
 
-        self.lib.bmc_aes128_cbc_decrypt.argtypes = [
-            ctypes.c_void_p, ctypes.c_size_t, ctypes.c_void_p,
-            ctypes.c_void_p, ctypes.c_void_p,
-            ctypes.POINTER(ctypes.c_size_t)
-        ]
-        self.lib.bmc_aes128_cbc_decrypt.restype = ctypes.c_int
-
-        # --- SHA-256 Function ---
-        self.lib.bmc_sha256.argtypes = [ctypes.c_void_p, ctypes.c_size_t, ctypes.c_void_p]
-        self.lib.bmc_sha256.restype = None
-
-
-    def aes_encrypt(self, plaintext: bytes, key: bytes, iv: bytes) -> Optional[bytes]:
-        """Hàm mã hóa AES-128-CBC tiện lợi."""
-        if len(key) != 16 or len(iv) != 16:
-            print("Lỗi: Key và IV phải dài đúng 16 bytes.")
+    def aes256_ctr_xcrypt(self, data: bytes, key: bytes, iv: bytes) -> Optional[bytes]:
+        """Hàm tiện lợi để gọi bmc_aes256_ctr_xcrypt."""
+        
+        if len(key) != 32:
+            print("Lỗi: Key cho AES-256 phải dài đúng 32 bytes.")
+            return None
+        if len(iv) != 16:
+            print("Lỗi: IV phải dài đúng 16 bytes.")
             return None
 
-        encrypted_size = self.lib.bmc_aes_get_padded_size(len(plaintext))
-        encrypted_buf = ctypes.create_string_buffer(encrypted_size)
+        # Trong CTR, output size luôn bằng input size
+        output_buf = ctypes.create_string_buffer(len(data))
         
-        result = self.lib.bmc_aes128_cbc_encrypt(
-            plaintext, len(plaintext), key, iv, encrypted_buf
+        result = self.lib.bmc_aes256_ctr_xcrypt(
+            data, len(data), key, iv, output_buf
         )
-        if result != 0: return None
-        return encrypted_buf.raw
-
-    def aes_decrypt(self, ciphertext: bytes, key: bytes, iv: bytes) -> Optional[bytes]:
-        """Hàm giải mã AES-128-CBC tiện lợi."""
-        if len(key) != 16 or len(iv) != 16:
-            print("Lỗi: Key và IV phải dài đúng 16 bytes.")
+        
+        if result != 0:
+            print(f"Lỗi khi thực thi hàm C, mã lỗi: {result}")
             return None
-
-        decrypted_buf = ctypes.create_string_buffer(len(ciphertext))
-        actual_len = ctypes.c_size_t(0)
-        
-        result = self.lib.bmc_aes128_cbc_decrypt(
-            ciphertext, len(ciphertext), key, iv,
-            decrypted_buf, ctypes.byref(actual_len)
-        )
-        if result != 0: return None
-        return decrypted_buf.raw[:actual_len.value]
-
-    def sha256(self, data: bytes) -> bytes:
-        """Hàm băm SHA-256 tiện lợi."""
-        hash_buf = ctypes.create_string_buffer(32)
-        self.lib.bmc_sha256(data, len(data), hash_buf)
-        return hash_buf.raw
+            
+        return output_buf.raw
 
 # --- Kịch bản Test ---
 if __name__ == "__main__":
     try:
         crypto = BCrypto(LIB_PATH)
         
-        # --- Test AES ---
-        print("\n--- TESTING AES-128-CBC ---")
-        plaintext_aes = b"Testing the final modular library in Python!"
-        key_aes = b'a-16-byte-secret'
-        iv_aes  = b'a-16-byte-vector'
+        print("\n--- TESTING AES-256-CTR ---")
+        
+        # Chuẩn bị dữ liệu
+        plaintext = b"This is a test message for AES-256 in Counter Mode."
+        # Tạo key 32-byte và IV 16-byte ngẫu nhiên
+        key = os.urandom(32) 
+        iv  = os.urandom(16)  
 
-        encrypted = crypto.aes_encrypt(plaintext_aes, key_aes, iv_aes)
-        if encrypted:
-            print(f"AES Encrypted (hex): {encrypted.hex()}")
-            decrypted = crypto.aes_decrypt(encrypted, key_aes, iv_aes)
-            if decrypted:
-                print(f"AES Decrypted: {decrypted.decode()}")
-                assert plaintext_aes == decrypted
-                print("✅ AES Test PASSED")
-        
-        # --- Test SHA-256 ---
-        print("\n--- TESTING SHA-256 ---")
-        input_sha = b"abc"
-        expected_hash = "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
-        
-        actual_hash = crypto.sha256(input_sha)
-        print(f"SHA-256 Input: '{input_sha.decode()}'")
-        print(f"Actual Hash:   {actual_hash.hex()}")
-        
-        assert expected_hash == actual_hash.hex()
-        print("✅ SHA-256 Test PASSED")
+        print(f"Plaintext: {plaintext.decode()}")
+        print(f"Key (hex): {key.hex()}")
+        print(f"IV (hex) : {iv.hex()}")
+
+        # Mã hóa
+        print("\n--- Encrypting ---")
+        ciphertext = crypto.aes256_ctr_xcrypt(plaintext, key, iv)
+        if ciphertext:
+            print(f"Ciphertext (hex): {ciphertext.hex()}")
+
+            # Giải mã
+            print("\n--- Decrypting ---")
+            # CTR dùng cùng một hàm và cùng một bộ key/iv để giải mã
+            decrypted_text = crypto.aes256_ctr_xcrypt(ciphertext, key, iv)
+            
+            if decrypted_text:
+                print(f"Decrypted text: {decrypted_text.decode()}")
+
+                # Xác minh
+                assert plaintext == decrypted_text
+                print("\n✅ TEST PASSED: Dữ liệu giải mã khớp với dữ liệu gốc!")
 
     except Exception as e:
         print(f"\n❌ Đã có lỗi xảy ra: {e}")
