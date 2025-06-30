@@ -28,7 +28,10 @@ class BCrypto:
         ]
         self.lib.bmc_aes256_ctr_xcrypt.restype = ctypes.c_int
         
-        # ... bạn có thể thêm cấu hình cho các hàm khác ở đây ...
+        # --- Cấu hình cho SHA3-256 ---
+        self.lib.bmc_sha3_256.argtypes = [ctypes.c_void_p, ctypes.c_size_t, ctypes.c_void_p]
+        self.lib.bmc_sha3_256.restype = None # Hàm C trả về void
+
 
     def aes256_ctr_xcrypt(self, data: bytes, key: bytes, iv: bytes) -> Optional[bytes]:
         """Hàm tiện lợi để gọi bmc_aes256_ctr_xcrypt."""
@@ -52,7 +55,11 @@ class BCrypto:
             return None
             
         return output_buf.raw
-
+    def sha3_256(self, data: bytes) -> bytes:
+        """Hàm băm SHA3-256 tiện lợi."""
+        hash_buf = ctypes.create_string_buffer(32) # SHA3-256 output is 32 bytes
+        self.lib.bmc_sha3_256(data, len(data), hash_buf)
+        return hash_buf.raw
 # --- Kịch bản Test ---
 if __name__ == "__main__":
     try:
@@ -87,6 +94,18 @@ if __name__ == "__main__":
                 # Xác minh
                 assert plaintext == decrypted_text
                 print("\n✅ TEST PASSED: Dữ liệu giải mã khớp với dữ liệu gốc!")
+         # === Test SHA3-256 ===
+        print("\n--- TESTING SHA3-256 ---")
+        input_sha = b"" # Test với chuỗi rỗng
+        expected_hash = "a7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a"
 
+        actual_hash = crypto.sha3_256(input_sha)
+
+        print(f"Input: '' (empty string)")
+        print(f"Actual Hash:   {actual_hash.hex()}")
+        print(f"Expected Hash: {expected_hash}")
+        
+        assert expected_hash == actual_hash.hex()
+        print("✅ SHA3-256 Test PASSED!")
     except Exception as e:
         print(f"\n❌ Đã có lỗi xảy ra: {e}")
